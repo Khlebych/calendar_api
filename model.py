@@ -6,6 +6,6 @@
 
 class Avent:
     id: str
-    data: str
+    date: str
     title: str
     text: str

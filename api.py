@@ -15,17 +15,19 @@ class ApiException(Exception):
 
 def _from_raw(raw_avent: str) -> model.Avent:
     parts = raw_avent.split('|')
-    if len(parts) == 2:
+    if len(parts) == 3:
         avent = model.Avent()
         avent.id = None
-        avent.title = parts[0]
-        avent.text = parts[1]
-        return avent
-    elif len(parts) == 3:
-        avent = model.Avent()
-        avent.id = parts[0]
+        avent.date = parts[0]
         avent.title = parts[1]
         avent.text = parts[2]
+        return avent
+    elif len(parts) == 4:
+        avent = model.Avent()
+        avent.id = parts[0]
+        avent.date = parts[1]
+        avent.title = parts[2]
+        avent.text = parts[3]
         return avent
     else:
         raise ApiException(f"invalid RAW avent data {raw_avent}")
@@ -33,28 +35,31 @@ def _from_raw(raw_avent: str) -> model.Avent:
 
 def _to_raw(avent: model.Avent) -> str:
     if avent.id is None:
-        return f"{avent.title}|{avent.text}"
+        return f"{avent.date}|{avent.title}|{avent.text}"
     else:
-        return f"{avent.id}|{avent.title}|{avent.text}"
+        return f"{avent.id}|{avent.date}|{avent.title}|{avent.text}"
 
 
 API_ROOT = "/api/v1"
 CALENDAR_API_ROOT = API_ROOT + "/calendar"
 
+avents = []
+
 
 @app.route(CALENDAR_API_ROOT + "/", methods=["POST"])
 def create():
     try:
-        data = request.get_data().decode('utf-8')
-        avent = _from_raw(data)
+        date = request.get_data().decode('utf-8')
+        avent = _from_raw(date)
         _id = _avent_logic.create(avent)
+        avents.append(avent)
         return f"new id: {_id}", 201
     except Exception as ex:
         return f"failed to CREATE with: {ex}", 404
 
 
 @app.route(CALENDAR_API_ROOT + "/", methods=["GET"])
-def list(avents=None):
+def list():
     try:
         _avent_logic.list()
         raw_avents = ""
@@ -78,8 +83,8 @@ def read(_id: str):
 @app.route(CALENDAR_API_ROOT + "/<_id>/", methods=["PUT"])
 def update(_id: str):
     try:
-        data = request.get_data().decode('utf-8')
-        avent = _from_raw(data)
+        date = request.get_data().decode('utf-8')
+        avent = _from_raw(date)
         _avent_logic.update(_id, avent)
         return "updated", 200
     except Exception as ex:
@@ -90,6 +95,8 @@ def update(_id: str):
 def delete(_id: str):
     try:
         _avent_logic.delete(_id)
+        # avent = _from_raw(_id)
+        # avents.pop(int(_id))
         return "deleted", 200
     except Exception as ex:
         return f"failed to DELETE with: {ex}", 404

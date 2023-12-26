@@ -23,7 +23,7 @@ class AventLogic:
     def _validate_avent(avent: model.Avent):
         if avent is None:
             raise LogicException("avent is None")
-        if avent.data is None or avent.data == date_create:
+        if avent.date is None or avent.date == date_create:
             raise LogicException(f'check the creation date')
         if avent.title is None or len(avent.title) > TITLE_LIMIT:
             raise LogicException(f"title length > MAX: {TITLE_LIMIT}")
@@ -56,7 +56,7 @@ class AventLogic:
         except Exception as ex:
             raise LogicException(f"failed UPDATE operation with: {ex}")
 
-    def delete(self, _id: str):
+    def delete(self, _id: str) -> object:
         try:
             return self._avent_db.delete(_id)
         except Exception as ex:

@@ -26,11 +26,11 @@ class LocalStorage:
             raise StorageException(f"{_id} not found in storage")
         return self._storage[_id]
 
-    def update(self, _id: str, note: model.Avent):
+    def update(self, _id: str, avent: model.Avent):
         if _id not in self._storage:
             raise StorageException(f"{_id} not found in storage")
-        note.id = _id
-        self._storage[note.id] = note
+        avent.id = _id
+        self._storage[avent.id] = avent
 
     def delete(self, _id: str):
         if _id not in self._storage:
