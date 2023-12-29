@@ -4,11 +4,11 @@ from datetime import date
 import model
 import db
 
+
 TITLE_LIMIT = 30
 TEXT_LIMIT = 200
 
-today = date.today()
-date_create = today.strftime("%Y-%m-%d")
+today = date.today().strftime("%Y-%m-%d")
 
 
 class LogicException(Exception):
@@ -21,10 +21,9 @@ class AventLogic:
 
     @staticmethod
     def _validate_avent(avent: model.Avent):
+        date_avent = avent.date
         if avent is None:
             raise LogicException("avent is None")
-        if avent.date is None or avent.date == date_create:
-            raise LogicException(f'check the creation date')
         if avent.title is None or len(avent.title) > TITLE_LIMIT:
             raise LogicException(f"title length > MAX: {TITLE_LIMIT}")
         if avent.text is None or len(avent.text) > TEXT_LIMIT:
@@ -33,6 +32,8 @@ class AventLogic:
     def create(self, avent: model.Avent) -> str:
         self._validate_avent(avent)
         try:
+            if avent.date == today:
+                raise LogicException(f'You cannot create more than one event in one day')
             return self._avent_db.create(avent)
         except Exception as ex:
             raise LogicException(f"failed CREATE operation with: {ex}")

@@ -43,7 +43,7 @@ def _to_raw(avent: model.Avent) -> str:
 API_ROOT = "/api/v1"
 CALENDAR_API_ROOT = API_ROOT + "/calendar"
 
-avents = []
+#avents = []
 
 
 @app.route(CALENDAR_API_ROOT + "/", methods=["POST"])
@@ -52,8 +52,8 @@ def create():
         date = request.get_data().decode('utf-8')
         avent = _from_raw(date)
         _id = _avent_logic.create(avent)
-        avents.append(avent)
         return f"new id: {_id}", 201
+
     except Exception as ex:
         return f"failed to CREATE with: {ex}", 404
 
@@ -61,7 +61,7 @@ def create():
 @app.route(CALENDAR_API_ROOT + "/", methods=["GET"])
 def list():
     try:
-        _avent_logic.list()
+        avents = _avent_logic.list()
         raw_avents = ""
         for avent in avents:
             raw_avents += _to_raw(avent) + '\n'
@@ -95,8 +95,8 @@ def update(_id: str):
 def delete(_id: str):
     try:
         _avent_logic.delete(_id)
-        # avent = _from_raw(_id)
-        # avents.pop(int(_id))
+        # avents = _avent_logic.list()
+        # avents.pop(int(_id)-1)
         return "deleted", 200
     except Exception as ex:
         return f"failed to DELETE with: {ex}", 404
